@@ -1,6 +1,6 @@
 import http.server
 
-PORT = 8000
+PORT = 80
 
 Handler = http.server.CGIHTTPRequestHandler
 

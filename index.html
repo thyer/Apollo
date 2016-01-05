@@ -8,11 +8,54 @@
     <body>
         <h1>Make a request</h1>
         <hr>
-        <select>
+        <select id="topic">
             <option value="INFOSEC">Information Security</option>
             <option value="BYU">Brigham Young University</option>
             <option value="FINANCE">Finance</option>
         </select>
+        <button type="button" onclick="doQuery();">Click here!</button>
         <hr>
+        <h2>Content: </h2>
+        <p id="stuff"></p>
     </body>
 </html>
+<script>
+    function doQuery(){
+        console.log("getting async");
+        var Url = "/cgi-bin/";
+        var index = document.getElementById("topic").selectedIndex;
+        switch(index){
+            case 0:
+                Url += "InfoSecHandler.py";
+                break;
+            case 1:
+                Url += "BYUHandler.py";
+                break;
+            case 2:
+                Url += "FinanceHandler.py";
+                break;
+        }
+        console.log("Index: " + index);
+
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = ProcessRequest;
+        xmlHttp.open( "GET", Url, true );
+        xmlHttp.send( null );
+    }
+    function ProcessRequest()
+    {
+        if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 )
+        {
+            if ( xmlHttp.responseText == "Not found" )
+            {
+                console.log("Bad response!")
+            }
+            else
+            {
+                var info = xmlHttp.responseText;
+                console.log("Response: " + info);
+                document.getElementById("stuff").innerHTML = info;
+            }
+        }
+    }
+</script>

@@ -23,6 +23,11 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header("Content-type", "image/ico")
             self.end_headers()
             self.serve_fav_icon()
+        elif self.path == '/apollo.png':
+            self.send_response(200)
+            self.send_header("Content-type", "image/ico")
+            self.end_headers()
+            self.serve_brand()
         elif "/query/" in self.path:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
@@ -44,6 +49,11 @@ class MyServer(BaseHTTPRequestHandler):
             for line in f:
                 self.wfile.write(bytes(line, "utf-8"))
 
+    def serve_brand(self):
+        with open("apollo.png") as f:
+            for line in f:
+                self.wfile.write(bytes(line, "utf-8"))
+
     def serve_query(self, topic):
         for row in c.execute("SELECT * FROM articles WHERE topic LIKE \'%s\'" % topic):
             index = 0
@@ -60,10 +70,10 @@ class MyServer(BaseHTTPRequestHandler):
                     dict['author'] = item
                 elif index == 5:
                     dict['link'] = item
-            self.wfile.write(bytes("<hr><h3>" + dict.get('title') + "</h3>", "utf-8"))
+            self.wfile.write(bytes("<div id=\"card\"><hr><h3>" + dict.get('title') + "</h3>", "utf-8"))
             self.wfile.write(bytes("Author: " + dict.get('author') + "<br>", "utf-8"))
             self.wfile.write(bytes("Published: " + dict.get('date') + "<br>", "utf-8"))
-            self.wfile.write(bytes("URL: <a href=\"" + dict.get('link') + "\">link</a></hr>", "utf-8"))
+            self.wfile.write(bytes("URL: <a href=\"" + dict.get('link') + "\">link</a><hr></div>", "utf-8"))
 
 
 myServer = HTTPServer((hostName, hostPort), MyServer)

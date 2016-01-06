@@ -22,17 +22,17 @@
 <script>
     function doQuery(){
         console.log("getting async");
-        var Url = "/cgi-bin/";
+        var Url = "/query/";
         var index = document.getElementById("topic").selectedIndex;
         switch(index){
             case 0:
-                Url += "InfoSecHandler.py";
+                Url += "INFOSEC";
                 break;
             case 1:
-                Url += "BYUHandler.py";
+                Url += "BYU";
                 break;
             case 2:
-                Url += "FinanceHandler.py";
+                Url += "FINANCE";
                 break;
         }
         console.log("Index: " + index);

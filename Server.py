@@ -1,21 +1,60 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time
+import sqlite3
 
 hostName = ""
 hostPort = 80
+conn = sqlite3.connect('content.db')
+
+c = conn.cursor()
+
 
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
+        print(self.path)
+        if self.path == '/' or self.path == '/index.html':
+            self.serve_index()
+        elif self.path == '/favicon.ico':
+            self.serve_fav_icon()
+        elif "/query/" in self.path:
+            self.serve_query(self.path.replace("/query/", ""))
+        else:
+            self.wfile.write(bytes("<p>Path was: %s</p>" % self.path, "utf-8"))
+
+    def serve_index(self):
         with open("index.html") as f:
             for line in f:
                 self.wfile.write(bytes(line, "utf-8"))
-        self.wfile.write(bytes("<html><head><title>Title goes here.</title></head>", "utf-8"))
-        self.wfile.write(bytes("<body><p>This is a test.</p>", "utf-8"))
-        self.wfile.write(bytes("<p>You accessed path: %s</p>" % self.path, "utf-8"))
-        self.wfile.write(bytes("</body></html>", "utf-8"))
+
+    def serve_fav_icon(self):
+        with open("favicon.ico") as f:
+            for line in f:
+                self.wfile.write(bytes(line, "utf-8"))
+
+    def serve_query(self, topic):
+        for row in c.execute("SELECT * FROM articles WHERE topic LIKE \'%s\'" % topic):
+            index = 0
+            dict = {}
+            for item in row:
+                if index % 5 == 0:
+                    index = 0
+                index += 1
+                if index == 1:
+                    dict['date'] = item
+                elif index == 3:
+                    dict['title'] = item
+                elif index == 4:
+                    dict['author'] = item
+                elif index == 5:
+                    dict['link'] = item
+            self.wfile.write(bytes("<hr><h3>" + dict.get('title') + "</h3>", "utf-8"))
+            self.wfile.write(bytes("Author: " + dict.get('author') + "<br>", "utf-8"))
+            self.wfile.write(bytes("Published: " + dict.get('date') + "<br>", "utf-8"))
+            self.wfile.write(bytes("URL: <a href=\"" + dict.get('link') + "\">link</a></hr>", "utf-8"))
+
 
 myServer = HTTPServer((hostName, hostPort), MyServer)
 print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))

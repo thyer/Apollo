@@ -11,18 +11,28 @@ c = conn.cursor()
 
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
+
         print(self.path)
         if self.path == '/' or self.path == '/index.html':
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
             self.serve_index()
         elif self.path == '/favicon.ico':
+            self.send_response(200)
+            self.send_header("Content-type", "image/ico")
+            self.end_headers()
             self.serve_fav_icon()
         elif "/query/" in self.path:
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
             self.serve_query(self.path.replace("/query/", ""))
         else:
-            self.wfile.write(bytes("<p>Path was: %s</p>" % self.path, "utf-8"))
+            self.send_response(404)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(bytes("<p>Invalid path: %s</p>" % self.path, "utf-8"))
 
     def serve_index(self):
         with open("index.html") as f:
